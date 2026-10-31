@@ -1,0 +1,11 @@
+# Microsoft account tokens. A token file is the key to the account: never commit it.
+*_token.json
+
+# Build output
+*.exe
+
+# Experiments, examples and research notes: keep them local
+examples/
+
+# Mojang's data, taken by cmd/download-mojang-data. It is Mojang's: never commit it.
+mojang-*.json
