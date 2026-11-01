@@ -30,7 +30,8 @@ import (
 // WorldName: the LAN world to join (empty: the first one found). TokenPath: the
 // file of the account token (empty: mcbedrock_token.json; never share or commit
 // it). MojangDataFolder: where download-mojang-data saved Mojang's data (empty:
-// the usual cache folder). Logger: where the called functions are logged (nil: nothing).
+// the usual cache folder). Logger: where joining (each step, and gophertunnel's
+// own logs) and the called functions are logged (nil: nothing).
 // OnPacket: told every packet from the first one, as Bot.OnPacket is; it starts
 // while Join is still going, before the Bot is there.
 type Options struct {
@@ -41,10 +42,11 @@ type Options struct {
 	OnPacket         func(packet.Packet)
 }
 
-// Join enters the world and returns once the bot can act. The first time, the
-// Microsoft login URL and code are printed to the terminal. Without Mojang's
-// data it stops before joining, saying how to take it, as a server stops
-// until its EULA is agreed to.
+// Join enters the world and returns once the bot can act. A LAN world that
+// accepts self-signed sign-in needs no Microsoft account; one that asks for
+// an Xbox Live sign-in gets it, and the first time the login URL and code are
+// printed to the terminal. Without Mojang's data Join stops before joining,
+// saying how to take it, as a server stops until its EULA is agreed to.
 func Join(ctx context.Context, options Options) (*Bot, error) {
 	mojangFolder := options.MojangDataFolder
 	if mojangFolder == "" {
@@ -58,7 +60,7 @@ func Join(ctx context.Context, options Options) (*Bot, error) {
 	if err != nil {
 		return nil, err
 	}
-	link, err := serverlink.Join(ctx, serverlink.Options{WorldName: options.WorldName, TokenPath: options.TokenPath})
+	link, err := serverlink.Join(ctx, serverlink.Options{WorldName: options.WorldName, TokenPath: options.TokenPath, Logger: options.Logger})
 	if err != nil {
 		return nil, err
 	}
