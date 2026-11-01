@@ -68,7 +68,10 @@ func New(entityRuntimeID uint64, entityUniqueID int64, position [3]float32, dime
 func (s *Self) EntityRuntimeID() uint64 { return s.entityRuntimeID }
 func (s *Self) EntityUniqueID() int64   { return s.entityUniqueID }
 
-// Position is where the server last said the bot is (the eyes).
+// Position is where the server last said the bot is (the eyes). While the bot
+// moves, the server says so only when it is off by about a block (seen with
+// Minecraft 1.26.60), so it can be that far behind; once the bot stops, it is
+// where the bot is.
 func (s *Self) Position() [3]float32 {
 	s.mu.Lock()
 	defer s.mu.Unlock()
