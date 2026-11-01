@@ -12,4 +12,7 @@
 // Contents (items and windows), Blocks (the world near the bot, by name),
 // Names (the name of any block, item or biome number), Raw (every packet as
 // it arrived). Block and biome names need Mojang's data: see download-mojang-data.
+//
+// Every type the Bot gives has a name in this package (Move, Self, Block,
+// Item, Effect...), so that a program can write it.
 package mcbedrock

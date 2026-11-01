@@ -3,6 +3,8 @@
 package self
 
 import (
+	"cmp"
+	"slices"
 	"sync"
 
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
@@ -14,6 +16,19 @@ type Vehicle struct {
 	EntityUniqueID  int64
 	EntityRuntimeID uint64
 }
+
+// Effect is one effect on the bot: ID is packet.EffectSpeed, packet.EffectPoison
+// and the others, Amplifier the level minus one, Duration the ticks left when
+// the server last told.
+type Effect struct {
+	ID        int32
+	Amplifier int32
+	Duration  int32
+}
+
+// maxEffects is more than all the effects of the game together: a server that
+// sends more distinct ones gets no more kept.
+const maxEffects = 64
 
 // Breaking is the block the left button is held on.
 type Breaking struct {
@@ -28,6 +43,10 @@ type Self struct {
 	position        [3]float32
 	dimension       int32
 	hotBarSlot      int
+	health          float32
+	maxHealth       float32
+	food            float32
+	effects         map[int32]Effect
 	dead            bool
 	canRespawn      bool
 	vehicle         Vehicle
@@ -40,7 +59,7 @@ type Self struct {
 
 // New starts from what the server gave while joining.
 func New(entityRuntimeID uint64, entityUniqueID int64, position [3]float32, dimension int32) *Self {
-	return &Self{entityRuntimeID: entityRuntimeID, entityUniqueID: entityUniqueID, position: position, dimension: dimension}
+	return &Self{entityRuntimeID: entityRuntimeID, entityUniqueID: entityUniqueID, position: position, dimension: dimension, effects: map[int32]Effect{}}
 }
 
 func (s *Self) EntityRuntimeID() uint64 { return s.entityRuntimeID }
@@ -87,6 +106,61 @@ func (s *Self) SetHotBarSlot(slot int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.hotBarSlot = slot
+}
+
+// Health is the bot's health now and the most it can be, in half hearts (20 is
+// ten hearts). Both are 0 until the server has told them.
+func (s *Self) Health() (now, maximum float32) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.health, s.maxHealth
+}
+
+func (s *Self) SetHealth(now, maximum float32) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.health, s.maxHealth = now, maximum
+}
+
+// Food is the hunger bar, 0 to 20. It is 0 until the server has told it.
+func (s *Self) Food() float32 {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.food
+}
+
+func (s *Self) SetFood(food float32) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.food = food
+}
+
+// Effects are the effects on the bot now, by ID from low to high.
+func (s *Self) Effects() []Effect {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	effects := make([]Effect, 0, len(s.effects))
+	for _, effect := range s.effects {
+		effects = append(effects, effect)
+	}
+	slices.SortFunc(effects, func(a, b Effect) int { return cmp.Compare(a.ID, b.ID) })
+	return effects
+}
+
+// SetEffect adds an effect or changes the one with the same ID.
+func (s *Self) SetEffect(effect Effect) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if _, known := s.effects[effect.ID]; !known && len(s.effects) >= maxEffects {
+		return
+	}
+	s.effects[effect.ID] = effect
+}
+
+func (s *Self) RemoveEffect(id int32) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.effects, id)
 }
 
 // Dead is true from death_info until the bot is back to life.

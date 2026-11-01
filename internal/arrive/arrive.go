@@ -40,8 +40,11 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Terrain.UpdateBlockSynced = func(p *packet.UpdateBlockSynced) { a.raw.Add(p); a.updateBlockSynced(p) }
 	link.Entity.MovePlayer = func(p *packet.MovePlayer) { a.raw.Add(p); a.movePlayer(p) }
 	link.Entity.SetActorLink = func(p *packet.SetActorLink) { a.raw.Add(p); a.setActorLink(p) }
+	link.Entity.UpdateAttributes = func(p *packet.UpdateAttributes) { a.raw.Add(p); a.updateAttributes(p) }
+	link.Entity.MobEffect = func(p *packet.MobEffect) { a.raw.Add(p); a.mobEffect(p) }
 	link.Player.DeathInfo = func(p *packet.DeathInfo) { a.raw.Add(p); a.deathInfo(p) }
 	link.Player.Respawn = func(p *packet.Respawn) { a.raw.Add(p); a.respawn(p) }
+	link.Player.SetHealth = func(p *packet.SetHealth) { a.raw.Add(p); a.setHealth(p) }
 	link.Operation.CorrectPlayerMovePrediction = func(p *packet.CorrectPlayerMovePrediction) { a.raw.Add(p); a.correctPlayerMovePrediction(p) }
 	link.Operation.InventoryTransaction = func(p *packet.InventoryTransaction) { a.raw.Add(p); a.inventoryTransaction(p) }
 	link.Operation.GUIDataPickItem = func(p *packet.GUIDataPickItem) { a.raw.Add(p); a.guiDataPickItem(p) }
@@ -90,8 +93,6 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Entity.MoveActorDelta = func(p *packet.MoveActorDelta) { a.raw.Add(p) }
 	link.Entity.SetActorMotion = func(p *packet.SetActorMotion) { a.raw.Add(p) }
 	link.Entity.SetActorData = func(p *packet.SetActorData) { a.raw.Add(p) }
-	link.Entity.UpdateAttributes = func(p *packet.UpdateAttributes) { a.raw.Add(p) }
-	link.Entity.MobEffect = func(p *packet.MobEffect) { a.raw.Add(p) }
 	link.Entity.MobEquipment = func(p *packet.MobEquipment) { a.raw.Add(p) }
 	link.Entity.MobArmourEquipment = func(p *packet.MobArmourEquipment) { a.raw.Add(p) }
 	link.Entity.Animate = func(p *packet.Animate) { a.raw.Add(p) }
@@ -103,7 +104,6 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Player.UpdatePlayerGameType = func(p *packet.UpdatePlayerGameType) { a.raw.Add(p) }
 	link.Player.SetDefaultGameType = func(p *packet.SetDefaultGameType) { a.raw.Add(p) }
 	link.Player.SetSpawnPosition = func(p *packet.SetSpawnPosition) { a.raw.Add(p) }
-	link.Player.SetHealth = func(p *packet.SetHealth) { a.raw.Add(p) }
 	link.Player.HurtArmour = func(p *packet.HurtArmour) { a.raw.Add(p) }
 	link.Player.PlayerArmourDamage = func(p *packet.PlayerArmourDamage) { a.raw.Add(p) }
 	link.Player.UpdateClientInputLocks = func(p *packet.UpdateClientInputLocks) { a.raw.Add(p) }

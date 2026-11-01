@@ -3,8 +3,7 @@
 package raw
 
 import (
-	"fmt"
-	"strings"
+	"reflect"
 	"sync"
 
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
@@ -24,7 +23,7 @@ func New() *Raw {
 
 // Add keeps a packet under its kind: the packet's type name, "SetHealth".
 func (r *Raw) Add(arrived packet.Packet) {
-	kind := strings.TrimPrefix(fmt.Sprintf("%T", arrived), "*packet.")
+	kind := kindOf(arrived)
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.count[kind]++
@@ -51,4 +50,17 @@ func (r *Raw) Count() map[string]int {
 		count[kind] = n
 	}
 	return count
+}
+
+// kindOf is the type name of a packet, "SetHealth", read from the type itself:
+// nothing is formatted for each packet that arrives.
+func kindOf(arrived packet.Packet) string {
+	kind := reflect.TypeOf(arrived)
+	if kind == nil {
+		return ""
+	}
+	if kind.Kind() == reflect.Pointer {
+		kind = kind.Elem()
+	}
+	return kind.Name()
 }
