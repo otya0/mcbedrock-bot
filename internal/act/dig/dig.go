@@ -49,7 +49,8 @@ func (d *Dig) Stop() error {
 	return nil
 }
 
-// Finish says the block broke, as a client does when the breaking time is up.
+// Finish says the block broke, as a client does when the breaking time is up:
+// Self().Breaking().Ticks after Start, as the server said.
 func (d *Dig) Finish(position protocol.BlockPos, face int32) error {
 	if !blocks.IsFace(face) {
 		return fmt.Errorf("dig finish: face %d is not 0 to 5", face)

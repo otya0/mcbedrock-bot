@@ -65,6 +65,7 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Inventory.InventorySlot = func(p *packet.InventorySlot) { a.raw.Add(p); a.inventorySlot(p) }
 	link.Inventory.ItemStackResponse = func(p *packet.ItemStackResponse) { a.raw.Add(p); a.itemStackResponse(p) }
 	link.Inventory.PlayerEnchantOptions = func(p *packet.PlayerEnchantOptions) { a.raw.Add(p); a.playerEnchantOptions(p) }
+	link.Environment.LevelEvent = func(p *packet.LevelEvent) { a.raw.Add(p); a.levelEvent(p) }
 
 	// Not used by layer 2: only kept in raw, for layer 3.
 	link.Connection.NetworkSettings = func(p *packet.NetworkSettings) { a.raw.Add(p) }
@@ -129,7 +130,6 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Display.PlayerList = func(p *packet.PlayerList) { a.raw.Add(p) }
 	link.Display.PlayerLocation = func(p *packet.PlayerLocation) { a.raw.Add(p) }
 	link.Display.LocatorBar = func(p *packet.LocatorBar) { a.raw.Add(p) }
-	link.Environment.LevelEvent = func(p *packet.LevelEvent) { a.raw.Add(p) }
 	link.Environment.LevelSoundEvent = func(p *packet.LevelSoundEvent) { a.raw.Add(p) }
 	link.Environment.SetDifficulty = func(p *packet.SetDifficulty) { a.raw.Add(p) }
 	link.Environment.SyncWorldClocks = func(p *packet.SyncWorldClocks) { a.raw.Add(p) }

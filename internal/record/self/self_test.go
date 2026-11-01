@@ -1,5 +1,5 @@
-// Checks that what is added for the next tick is given once, and that the
-// effects are kept by ID.
+// Checks that what is added for the next tick is given once, that the effects
+// are kept by ID, and that the breaking time goes to the block still held.
 package self
 
 import (
@@ -48,5 +48,21 @@ func TestEffectsHaveALimit(t *testing.T) {
 	}
 	if n := len(s.Effects()); n != maxEffects {
 		t.Errorf("kept %d effects, want %d", n, maxEffects)
+	}
+}
+
+// The breaking time is written only while the button is held on that block.
+func TestBreakingTicksOnlyForTheHeldBlock(t *testing.T) {
+	s := New(1, 1, [3]float32{}, 0)
+	held := protocol.BlockPos{1, 2, 3}
+	s.SetBreakingTicks(held, 18)
+	if breaking, _ := s.Breaking(); breaking.Ticks != 0 {
+		t.Errorf("ticks %d with the button not held, want 0", breaking.Ticks)
+	}
+	s.SetBreaking(Breaking{Position: held, Face: 1}, true)
+	s.SetBreakingTicks(protocol.BlockPos{9, 9, 9}, 40)
+	s.SetBreakingTicks(held, 18)
+	if breaking, _ := s.Breaking(); breaking.Ticks != 18 {
+		t.Errorf("ticks %d, want 18 (the other block's 40 must not count)", breaking.Ticks)
 	}
 }

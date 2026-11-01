@@ -30,10 +30,13 @@ type Effect struct {
 // sends more distinct ones gets no more kept.
 const maxEffects = 64
 
-// Breaking is the block the left button is held on.
+// Breaking is the block the left button is held on. Ticks is how many ticks
+// the whole break takes, as the server last said (when breaking starts, and
+// again when the speed changes); 0 until it says.
 type Breaking struct {
 	Position protocol.BlockPos
 	Face     int32
+	Ticks    int
 }
 
 type Self struct {
@@ -214,6 +217,17 @@ func (s *Self) SetBreaking(breaking Breaking, holding bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.breaking, s.holdingBreak = breaking, holding
+}
+
+// SetBreakingTicks writes how many ticks the break takes, if the button is
+// still held on the block at position (the server's word may come late).
+func (s *Self) SetBreakingTicks(position protocol.BlockPos, ticks int) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !s.holdingBreak || s.breaking.Position != position {
+		return
+	}
+	s.breaking.Ticks = ticks
 }
 
 // AddTickFlag and AddTickBlockAction put something into the next tick's
