@@ -13,6 +13,9 @@
 // Names (the name of any block, item or biome number), Raw (every packet as
 // it arrived). Block and biome names need Mojang's data: see download-mojang-data.
 //
+// A program can also be told every packet that arrives (OnPacket) and every
+// tick (OnTick), so that it need not poll the records.
+//
 // Every type the Bot gives has a name in this package (Move, Self, Block,
 // Item, Effect...), so that a program can write it.
 package mcbedrock

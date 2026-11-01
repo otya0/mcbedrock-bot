@@ -1,7 +1,7 @@
 package serverlink
 
-// receiveLoop reads every packet that arrives and hands each one out,
-// until the connection ends. Start runs it in a goroutine of its own.
+// receiveLoop reads every packet that arrives and delivers each one (to its
+// listener, then to the observers), until the connection ends. Start runs it in a goroutine of its own.
 //
 // Packets must always be read, wanted or not, or they pile up inside
 // gophertunnel. ReadPacket returns an error when the connection has
@@ -15,6 +15,6 @@ func (link *Link) receiveLoop() {
 			link.finish(err)
 			return
 		}
-		link.handOut(arrived)
+		link.deliver(arrived)
 	}
 }

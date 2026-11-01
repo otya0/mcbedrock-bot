@@ -3,6 +3,8 @@
 package mcbedrock
 
 import (
+	"sync"
+
 	"github.com/otya0/mcbedrock-bot/internal/act/choose"
 	"github.com/otya0/mcbedrock-bot/internal/act/container"
 	"github.com/otya0/mcbedrock-bot/internal/act/dig"
@@ -40,6 +42,10 @@ type Bot struct {
 	say       *say.Say
 	container *container.Container
 	respawn   *respawn.Respawn
+
+	// The OnTick functions, called by the tick clock.
+	tickMu        sync.Mutex
+	tickObservers []func(tick uint64)
 }
 
 // What the bot does: one door per kind of input.

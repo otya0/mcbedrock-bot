@@ -23,17 +23,21 @@ import (
 	"github.com/otya0/mcbedrock-bot/internal/record/raw"
 	"github.com/otya0/mcbedrock-bot/internal/record/self"
 	"github.com/otya0/mcbedrock-bot/internal/serverlink"
+	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 )
 
 // WorldName: the LAN world to join (empty: the first one found). TokenPath: the
 // file of the account token (empty: mcbedrock_token.json; never share or commit
 // it). MojangDataFolder: where download-mojang-data saved Mojang's data (empty:
 // the usual cache folder). Logger: where the called functions are logged (nil: nothing).
+// OnPacket: told every packet from the first one, as Bot.OnPacket is; it starts
+// while Join is still going, before the Bot is there.
 type Options struct {
 	WorldName        string
 	TokenPath        string
 	MojangDataFolder string
 	Logger           *slog.Logger
+	OnPacket         func(packet.Packet)
 }
 
 // Join enters the world and returns once the bot can act. The first time, the
@@ -83,8 +87,10 @@ func Join(ctx context.Context, options Options) (*Bot, error) {
 	b.container = container.New(link, b.self, b.contents, b.blocks, logger)
 	b.respawn = respawn.New(link, b.self, logger)
 	arrive.Connect(link, b.raw, b.self, b.contents, b.blocks, b.names)
+	if options.OnPacket != nil {
+		link.Observe(options.OnPacket)
+	}
 	link.Start()
-	// move.Tick is the tick clock's job, not a user's: it is not a method of Move.
-	link.StartTickClock(func(tick uint64) { move.Tick(b.move, tick) })
+	link.StartTickClock(b.tick)
 	return b, nil
 }

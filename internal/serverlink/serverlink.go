@@ -75,6 +75,10 @@ type Link struct {
 	// Leave it nil to drop them.
 	OtherPacket func(packet.Packet)
 
+	// observers are told every packet after its listener (see Observe).
+	observersMu sync.Mutex
+	observers   []func(packet.Packet)
+
 	startOnce  sync.Once
 	closeOnce  sync.Once
 	finishOnce sync.Once
@@ -124,28 +128,29 @@ func Join(ctx context.Context, options Options) (*Link, error) {
 }
 
 // Start tells the packets that arrived while entering, in order, then
-// starts the receive loop, which tells every packet from then on. Set the
-// listeners before calling it. Calling it again does nothing.
+// starts the receive loop, which tells every packet from then on: each one
+// to its listener, then to the observers. Set the listeners before calling
+// it. Calling it again does nothing.
 func (link *Link) Start() {
 	link.startOnce.Do(func() {
 		defer link.closeOnPanic()
 		for _, arrived := range link.arrivedWhileEntering {
-			link.handOut(arrived)
+			link.deliver(arrived)
 		}
 		link.arrivedWhileEntering = nil
 		go link.receiveLoop()
 	})
 }
 
-// closeOnPanic, deferred where listeners and the tick function are called,
-// turns a panic in one of them into the end of the connection, with the
-// panic as the reason in Err, instead of the end of the whole program.
+// closeOnPanic, deferred where listeners, observers and the tick function
+// are called, turns a panic in one of them into the end of the connection,
+// with the panic as the reason in Err, instead of the end of the whole program.
 func (link *Link) closeOnPanic() {
 	recovered := recover()
 	if recovered == nil {
 		return
 	}
-	link.finish(fmt.Errorf("serverlink: panic in a listener or the tick function: %v", recovered))
+	link.finish(fmt.Errorf("serverlink: panic in a listener, an observer or the tick function: %v", recovered))
 	if link.connection != nil {
 		_ = link.connection.Close()
 	}
