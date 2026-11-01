@@ -1,12 +1,12 @@
 module github.com/otya0/mcbedrock-bot
 
-go 1.26.0
+go 1.25.0
 
 require (
 	github.com/df-mc/go-nethernet v1.0.25
 	github.com/go-gl/mathgl v1.1.0
 	github.com/sandertv/gophertunnel v1.63.0
-	golang.org/x/oauth2 v0.37.0
+	golang.org/x/oauth2 v0.36.0
 )
 
 require (
@@ -18,7 +18,7 @@ require (
 	github.com/df-mc/jsonc v1.0.5 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/klauspost/compress v1.18.1 // indirect
+	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/pion/datachannel v1.6.3 // indirect
 	github.com/pion/dtls/v3 v3.1.9 // indirect
 	github.com/pion/ice/v4 v4.4.4 // indirect
