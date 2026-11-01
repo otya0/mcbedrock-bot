@@ -4,8 +4,10 @@
 # Build output
 *.exe
 
-# Experiments, examples and research notes: keep them local
-examples/
+# Experiments and research notes: keep them local. examples/hello, the
+# smallest whole program, is the one example that is published.
+examples/*
+!examples/hello/
 
 # Mojang's data, taken by cmd/download-mojang-data. It is Mojang's: never commit it.
 mojang-*.json

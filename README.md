@@ -39,9 +39,21 @@ Then take Mojang's data once (see below):
 go run github.com/otya0/mcbedrock-bot/cmd/download-mojang-data@latest
 ```
 
+## Try it
+
+Open a world with "Visible to LAN Players" on, then run the smallest whole
+program, [examples/hello](examples/hello/main.go). It joins, says where the
+bot is and what is around it, and leaves after ten seconds; its log shows
+each step of joining, so a failure says where it stopped.
+
+```
+go run github.com/otya0/mcbedrock-bot/examples/hello@latest
+```
+
 ## Example
 
-The package name is `mcbedrock`.
+The package name is `mcbedrock`. For a whole program, see
+[examples/hello](examples/hello/main.go).
 
 ```go
 import "github.com/otya0/mcbedrock-bot"
@@ -126,14 +138,19 @@ until they are there.
 
 ## Account
 
-The first `Join` prints a Microsoft login URL and a code. After you sign in,
-the token is saved in `mcbedrock_token.json`. **This file is the key to your
+On a LAN world the bot usually needs no Microsoft account: when the world
+accepts self-signed sign-in (Minecraft 1.26.60 did), the bot joins without
+one, so you can try it alone, playing with your own account.
+
+If the world asks for an Xbox Live sign-in, the first `Join` prints a login
+URL and a code; sign in with an account other than the one you play with.
+The token is saved in `mcbedrock_token.json`. **This file is the key to that
 account: never share it or commit it.**
 
 ## Logs
 
 mcbedrock-bot prints nothing. Give `Options.Logger` a `*slog.Logger` to see
-each call it makes.
+each step of joining and each call it makes.
 
 ## How it is built
 
