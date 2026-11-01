@@ -16,6 +16,7 @@ import (
 	"github.com/otya0/mcbedrock-bot/internal/act/use"
 	"github.com/otya0/mcbedrock-bot/internal/record/blocks"
 	"github.com/otya0/mcbedrock-bot/internal/record/contents"
+	"github.com/otya0/mcbedrock-bot/internal/record/entities"
 	"github.com/otya0/mcbedrock-bot/internal/record/names"
 	"github.com/otya0/mcbedrock-bot/internal/record/raw"
 	"github.com/otya0/mcbedrock-bot/internal/record/self"
@@ -41,6 +42,7 @@ type (
 	Contents = contents.Contents
 	Blocks   = blocks.Blocks
 	Names    = names.Names
+	Entities = entities.Entities
 	Raw      = raw.Raw
 )
 
@@ -53,4 +55,5 @@ type (
 	Vehicle    = self.Vehicle
 	Breaking   = self.Breaking
 	Effect     = self.Effect
+	Entity     = entities.Entity
 )

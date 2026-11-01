@@ -1,6 +1,6 @@
 // The bot got on or off something: write what it rides. The runtime ID of the
-// vehicle is looked up among the add_actor packets kept in raw; when it is not
-// there, it is taken to be the same number as the unique ID (a guess).
+// vehicle comes from the entities record; when the vehicle is not known there,
+// it is taken to be the same number as the unique ID (a guess).
 package arrive
 
 import (
@@ -19,10 +19,8 @@ func (a *Arrive) setActorLink(changed *packet.SetActorLink) {
 	}
 	ridden := changed.EntityLink.RiddenEntityUniqueID
 	vehicle := self.Vehicle{EntityUniqueID: ridden, EntityRuntimeID: uint64(ridden)}
-	for _, kept := range a.raw.Last("AddActor") {
-		if added, ok := kept.(*packet.AddActor); ok && added.EntityUniqueID == ridden {
-			vehicle.EntityRuntimeID = added.EntityRuntimeID
-		}
+	if known, ok := a.entities.ByUniqueID(ridden); ok {
+		vehicle.EntityRuntimeID = known.RuntimeID
 	}
 	a.self.SetVehicle(vehicle, true)
 }

@@ -1,5 +1,6 @@
 // Bot is one bot in one world. Its methods are everything a user can do (the
-// ten doors) and read (self, contents, blocks, names, raw). Join makes it.
+// ten doors) and read (self, contents, blocks, names, entities, raw). Join
+// makes it.
 package mcbedrock
 
 import (
@@ -17,6 +18,7 @@ import (
 	"github.com/otya0/mcbedrock-bot/internal/act/use"
 	"github.com/otya0/mcbedrock-bot/internal/record/blocks"
 	"github.com/otya0/mcbedrock-bot/internal/record/contents"
+	"github.com/otya0/mcbedrock-bot/internal/record/entities"
 	"github.com/otya0/mcbedrock-bot/internal/record/names"
 	"github.com/otya0/mcbedrock-bot/internal/record/raw"
 	"github.com/otya0/mcbedrock-bot/internal/record/self"
@@ -31,6 +33,7 @@ type Bot struct {
 	contents *contents.Contents
 	blocks   *blocks.Blocks
 	names    *names.Names
+	entities *entities.Entities
 
 	move      *move.Move
 	dig       *dig.Dig
@@ -61,11 +64,13 @@ func (b *Bot) Container() *container.Container { return b.container }
 func (b *Bot) Respawn() *respawn.Respawn       { return b.respawn }
 
 // Output: the bot itself, the items and windows, the blocks with their names,
-// the names of any number (for packets in Raw), and every packet as it arrived.
+// the names of any number (for packets in Raw), the entities around the bot,
+// and every packet as it arrived.
 func (b *Bot) Self() *self.Self             { return b.self }
 func (b *Bot) Contents() *contents.Contents { return b.contents }
 func (b *Bot) Blocks() *blocks.Blocks       { return b.blocks }
 func (b *Bot) Names() *names.Names          { return b.names }
+func (b *Bot) Entities() *entities.Entities { return b.entities }
 func (b *Bot) Raw() *raw.Raw                { return b.raw }
 
 // Close leaves the world.

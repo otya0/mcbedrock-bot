@@ -10,8 +10,9 @@
 //
 // What the server tells is read from the records: Self (the bot itself),
 // Contents (items and windows), Blocks (the world near the bot, by name),
-// Names (the name of any block, item or biome number), Raw (every packet as
-// it arrived). Block and biome names need Mojang's data: see download-mojang-data.
+// Names (the name of any block, item or biome number), Entities (the animals,
+// monsters, players and items around the bot), Raw (every packet as it
+// arrived). Block and biome names need Mojang's data: see download-mojang-data.
 //
 // A program can also be told every packet that arrives (OnPacket) and every
 // tick (OnTick), so that it need not poll the records.

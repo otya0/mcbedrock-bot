@@ -19,6 +19,7 @@ import (
 	"github.com/otya0/mcbedrock-bot/internal/arrive"
 	"github.com/otya0/mcbedrock-bot/internal/record/blocks"
 	"github.com/otya0/mcbedrock-bot/internal/record/contents"
+	"github.com/otya0/mcbedrock-bot/internal/record/entities"
 	"github.com/otya0/mcbedrock-bot/internal/record/names"
 	"github.com/otya0/mcbedrock-bot/internal/record/raw"
 	"github.com/otya0/mcbedrock-bot/internal/record/self"
@@ -73,6 +74,7 @@ func Join(ctx context.Context, options Options) (*Bot, error) {
 		contents: contents.New(gameData.Items),
 		blocks:   blocks.New(),
 		names:    nameTable,
+		entities: entities.New(),
 	}
 	b.names.SetItems(gameData.Items)
 	b.names.SetCustomBlocks(gameData.CustomBlocks)
@@ -86,7 +88,7 @@ func Join(ctx context.Context, options Options) (*Bot, error) {
 	b.say = say.New(link, logger)
 	b.container = container.New(link, b.self, b.contents, b.blocks, logger)
 	b.respawn = respawn.New(link, b.self, logger)
-	arrive.Connect(link, b.raw, b.self, b.contents, b.blocks, b.names)
+	arrive.Connect(link, b.raw, b.self, b.contents, b.blocks, b.names, b.entities)
 	if options.OnPacket != nil {
 		link.Observe(options.OnPacket)
 	}

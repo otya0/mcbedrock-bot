@@ -6,6 +6,7 @@ package arrive
 import (
 	"github.com/otya0/mcbedrock-bot/internal/record/blocks"
 	"github.com/otya0/mcbedrock-bot/internal/record/contents"
+	"github.com/otya0/mcbedrock-bot/internal/record/entities"
 	"github.com/otya0/mcbedrock-bot/internal/record/names"
 	"github.com/otya0/mcbedrock-bot/internal/record/raw"
 	"github.com/otya0/mcbedrock-bot/internal/record/self"
@@ -20,11 +21,12 @@ type Arrive struct {
 	contents *contents.Contents
 	blocks   *blocks.Blocks
 	names    *names.Names
+	entities *entities.Entities
 }
 
 // Connect sets every listener of link. Call it before link.Start.
-func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, contentsRecord *contents.Contents, blocksRecord *blocks.Blocks, namesRecord *names.Names) {
-	a := &Arrive{link: link, raw: rawRecord, self: selfRecord, contents: contentsRecord, blocks: blocksRecord, names: namesRecord}
+func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, contentsRecord *contents.Contents, blocksRecord *blocks.Blocks, namesRecord *names.Names, entitiesRecord *entities.Entities) {
+	a := &Arrive{link: link, raw: rawRecord, self: selfRecord, contents: contentsRecord, blocks: blocksRecord, names: namesRecord, entities: entitiesRecord}
 	// Used by layer 2: kept in raw, then handled by the file of the same name.
 	link.Connection.ChangeDimension = func(p *packet.ChangeDimension) { a.raw.Add(p); a.changeDimension(p) }
 	link.Connection.NetworkStackLatency = func(p *packet.NetworkStackLatency) { a.raw.Add(p); a.networkStackLatency(p) }
@@ -38,6 +40,12 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Terrain.UpdateBlock = func(p *packet.UpdateBlock) { a.raw.Add(p); a.updateBlock(p) }
 	link.Terrain.UpdateSubChunkBlocks = func(p *packet.UpdateSubChunkBlocks) { a.raw.Add(p); a.updateSubChunkBlocks(p) }
 	link.Terrain.UpdateBlockSynced = func(p *packet.UpdateBlockSynced) { a.raw.Add(p); a.updateBlockSynced(p) }
+	link.Entity.AddActor = func(p *packet.AddActor) { a.raw.Add(p); a.addActor(p) }
+	link.Entity.AddPlayer = func(p *packet.AddPlayer) { a.raw.Add(p); a.addPlayer(p) }
+	link.Entity.AddItemActor = func(p *packet.AddItemActor) { a.raw.Add(p); a.addItemActor(p) }
+	link.Entity.RemoveActor = func(p *packet.RemoveActor) { a.raw.Add(p); a.removeActor(p) }
+	link.Entity.MoveActorAbsolute = func(p *packet.MoveActorAbsolute) { a.raw.Add(p); a.moveActorAbsolute(p) }
+	link.Entity.MoveActorDelta = func(p *packet.MoveActorDelta) { a.raw.Add(p); a.moveActorDelta(p) }
 	link.Entity.MovePlayer = func(p *packet.MovePlayer) { a.raw.Add(p); a.movePlayer(p) }
 	link.Entity.SetActorLink = func(p *packet.SetActorLink) { a.raw.Add(p); a.setActorLink(p) }
 	link.Entity.UpdateAttributes = func(p *packet.UpdateAttributes) { a.raw.Add(p); a.updateAttributes(p) }
@@ -58,8 +66,7 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.Inventory.ItemStackResponse = func(p *packet.ItemStackResponse) { a.raw.Add(p); a.itemStackResponse(p) }
 	link.Inventory.PlayerEnchantOptions = func(p *packet.PlayerEnchantOptions) { a.raw.Add(p); a.playerEnchantOptions(p) }
 
-	// Not used by layer 2: only kept in raw, for layer 3. AddActor is also read
-	// back from raw by set_actor_link, to find the runtime ID of a vehicle.
+	// Not used by layer 2: only kept in raw, for layer 3.
 	link.Connection.NetworkSettings = func(p *packet.NetworkSettings) { a.raw.Add(p) }
 	link.Connection.ServerToClientHandshake = func(p *packet.ServerToClientHandshake) { a.raw.Add(p) }
 	link.Connection.ResourcePacksInfo = func(p *packet.ResourcePacksInfo) { a.raw.Add(p) }
@@ -83,14 +90,8 @@ func Connect(link *serverlink.Link, rawRecord *raw.Raw, selfRecord *self.Self, c
 	link.BlockEntity.BlockActorData = func(p *packet.BlockActorData) { a.raw.Add(p) }
 	link.BlockEntity.BlockEvent = func(p *packet.BlockEvent) { a.raw.Add(p) }
 	link.BlockEntity.OpenSign = func(p *packet.OpenSign) { a.raw.Add(p) }
-	link.Entity.AddActor = func(p *packet.AddActor) { a.raw.Add(p) }
-	link.Entity.AddPlayer = func(p *packet.AddPlayer) { a.raw.Add(p) }
-	link.Entity.AddItemActor = func(p *packet.AddItemActor) { a.raw.Add(p) }
 	link.Entity.AddPainting = func(p *packet.AddPainting) { a.raw.Add(p) }
-	link.Entity.RemoveActor = func(p *packet.RemoveActor) { a.raw.Add(p) }
 	link.Entity.TakeItemActor = func(p *packet.TakeItemActor) { a.raw.Add(p) }
-	link.Entity.MoveActorAbsolute = func(p *packet.MoveActorAbsolute) { a.raw.Add(p) }
-	link.Entity.MoveActorDelta = func(p *packet.MoveActorDelta) { a.raw.Add(p) }
 	link.Entity.SetActorMotion = func(p *packet.SetActorMotion) { a.raw.Add(p) }
 	link.Entity.SetActorData = func(p *packet.SetActorData) { a.raw.Add(p) }
 	link.Entity.MobEquipment = func(p *packet.MobEquipment) { a.raw.Add(p) }
